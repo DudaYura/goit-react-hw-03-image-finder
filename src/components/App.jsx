@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import api from '../services/api';
-// import { fetchImages } from 'services/api.jsx';
+import { fetchImages } from 'services/api.jsx';
 import { Searchbar } from 'components/Searchbar/Searchbar.jsx';
 import { ImageGallery } from 'components/ImageGallery/ImageGallery.jsx';
 import { Loader } from 'components/Loader/Loader.jsx';
@@ -46,15 +45,15 @@ export class App extends Component {
     this.setState({ isLoading: true });
 
     try {
-      const data = await api(query, page);
+      const { data, totalHits } = await fetchImages(query, page);
 
       if (page === 1) {
         this.setState(() => ({
-          total: data.total,
+          total: totalHits,
         }));
       }
       this.setState(state => ({
-        images: [...state.images, ...data.hits],
+        images: [...state.images, ...data],
         isLoading: false,
       }));
     } catch (error) {
@@ -75,11 +74,11 @@ export class App extends Component {
     return (
       <Container>
         <Searchbar onSubmit={this.handleInput} />
-        {isLoading && <Loader>Loading</Loader>}
 
         {images && (
           <>
-            {images.length === 0 && <NotificationContainer />}
+            {images.length === 0 &&
+              NotificationManager.error('Pictures not found')}
 
             <ImageGallery items={images} />
 
