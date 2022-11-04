@@ -47,21 +47,24 @@ export class App extends Component {
     try {
       const { data, totalHits } = await fetchImages(query, page);
 
-      if (page === 1) {
-        this.setState(() => ({
-          total: totalHits,
-        }));
+      if (totalHits === 0) {
+         NotificationManager.error(
+           'Pictures not found',
+           'Close after 4000ms',
+           4000
+         );
       }
+        if (page === 1) {
+          this.setState(() => ({
+            total: totalHits,
+          }));
+        }
       this.setState(state => ({
         images: [...state.images, ...data],
         isLoading: false,
       }));
     } catch (error) {
-      NotificationManager.warning(
-        'Pictures not found',
-        'Close after 4000ms',
-        3000
-      );
+     console.log('fetch error -', error)
     } finally {
       this.setState({ isLoading: false });
     }
@@ -77,8 +80,7 @@ export class App extends Component {
 
         {images && (
           <>
-            {images.length === 0 &&
-              NotificationManager.error('Pictures not found')}
+            {images.length === 0 && <NotificationContainer />}
 
             <ImageGallery items={images} />
 
